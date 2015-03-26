@@ -1,13 +1,13 @@
 Github Project Management
-###
+===
 
 If you work with engineering teams that rely on GitHub and you have to help
 do project management, this tool is likely helpful. It gives a simple way to
 export the full list of current GitHub projects based on labels.
 
-- [Why make this project?]()
-- [Installation]()
-- [Example]()
+- [Why make this project?](#why-make-this-project)
+- [Installing](#installing)
+- [Example Code](#example-code)
 
 This code is maintained by Jayson Falkner (jfalkner@gmail.com). Please file
 ideas for improvements in the [issues section](https://github.com/jfalkner/github_project_management/issues) of this repo.
