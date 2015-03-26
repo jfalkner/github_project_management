@@ -60,7 +60,7 @@ Install the code with the following.
 pip install github_project_management
 ```
 
-You will likely also need these dependencies.
+You must also have the [github3.py](https://github3py.readthedocs.org/en/master/index.html) installed.
 
 ```
 pip install github3.py
@@ -130,4 +130,3 @@ votes from users and team leads. This allows you to engage user groups to use
 GitHub, clarify what is needed, then bring that to a reoccuring project
 planning need with engineering resources. For example, this is currently used
 as the basis of a monthly refresh and refocus on needed work.
-
