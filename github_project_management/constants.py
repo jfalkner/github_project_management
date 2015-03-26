@@ -1,4 +1,5 @@
 TITLE = 'Title'
+ASSIGNEE = 'Assignee'
 URL = 'URL'
 CREATED = 'Created'
 LATEST_COMMENT = 'Latest Comment'
@@ -7,6 +8,7 @@ TEAM_VOTES = 'Team Votes'
 
 HEADER = [
     TITLE,
+    ASSIGNEE,
     URL,
     CREATED,
     LATEST_COMMENT,

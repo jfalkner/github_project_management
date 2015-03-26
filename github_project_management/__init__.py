@@ -38,6 +38,7 @@ def list_projects(
 
             row = {}
             row[GPMC.TITLE] = issue.title
+            row[GPMC.ASSIGNEE] = issue.assignee.login if issue.assignee else None
             row[GPMC.CREATED] = issue.created_at
             url = gh_api_url + '/' + repo_user + '/' + repo_name + '/issues/' + str(issue.number)
             row[GPMC.URL] = url
@@ -80,6 +81,7 @@ def list_projects(
         url = row[GPMC.URL]
         yield {
             GPMC.TITLE: row[GPMC.TITLE],
+            GPMC.ASSIGNEE: row[GPMC.ASSIGNEE],
             GPMC.URL: url,
             GPMC.CREATED: date_format(row[GPMC.CREATED]),
             GPMC.LATEST_COMMENT: date_format(row[GPMC.LATEST_COMMENT]),
