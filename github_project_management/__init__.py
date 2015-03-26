@@ -8,6 +8,7 @@ def list_projects(
     gh_password,
     gh_api_url,
     repos,
+    labels,
     users=None,
     team_leads=None,
     date_format=lambda x: x.strftime('%Y-%m-%d')):
@@ -34,7 +35,7 @@ def list_projects(
     for repo_user, repo_name in repos:
         repo = gh.repository(repo_user, repo_name)
         for issue in repo.iter_issues(state='open',
-                                      labels='curation'):
+                                      labels=','.join(labels)):
 
             row = {}
             row[GPMC.TITLE] = issue.title
