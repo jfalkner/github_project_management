@@ -16,8 +16,6 @@ def list_projects(
     gh = github3.github.GitHubEnterprise(gh_api_url)
     gh.login(gh_user, gh_password)
 
-    #print 'Title,URL,Created,Latest Comment,Team Votes,User Votes'
-
     # Track votes across all issues.
     votes = {}
     team_votes = {}
@@ -45,6 +43,9 @@ def list_projects(
             row[GPMC.URL] = url
             row[GPMC.VOTES] = 0
             row[GPMC.TEAM_VOTES] = 0
+
+            # Extra info that may not appear in columns.
+            row[GPMC.BODY] = issue.body
 
             # Iterate through all of the comments.
             ruoi, roi = issue.repository

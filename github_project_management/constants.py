@@ -13,3 +13,7 @@ HEADER = [
     VOTES,
     TEAM_VOTES,
 ]
+
+# Non-header fields. Useful for deriving custom extra columns in code that uses
+# this API.
+BODY = 'body'
