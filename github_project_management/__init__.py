@@ -45,6 +45,7 @@ def list_projects(
             row[GPMC.URL] = url
             row[GPMC.VOTES] = 0
             row[GPMC.TEAM_VOTES] = 0
+            row[GPMC.MILESTONE] = issue.milestone.title if issue.milestone else None
 
             # Extra info that may not appear in columns.
             row[GPMC.BODY] = issue.body
@@ -82,10 +83,13 @@ def list_projects(
         url = row[GPMC.URL]
         yield {
             GPMC.TITLE: row[GPMC.TITLE],
+            GPMC.MILESTONE: row[GPMC.MILESTONE],
             GPMC.ASSIGNEE: row[GPMC.ASSIGNEE],
             GPMC.URL: url,
             GPMC.CREATED: date_format(row[GPMC.CREATED]),
             GPMC.LATEST_COMMENT: date_format(row[GPMC.LATEST_COMMENT]),
             GPMC.VOTES: vote_tally.get(url, 0),
             GPMC.TEAM_VOTES: team_vote_tally.get(url, 0),
+            # Non-header fields.
+            GPMC.BODY: GPMC.BODY,
         }

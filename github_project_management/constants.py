@@ -1,4 +1,5 @@
 TITLE = 'Title'
+MILESTONE = 'Milestone'
 ASSIGNEE = 'Assignee'
 URL = 'URL'
 CREATED = 'Created'
@@ -8,6 +9,7 @@ TEAM_VOTES = 'Team Votes'
 
 HEADER = [
     TITLE,
+    MILESTONE,
     ASSIGNEE,
     URL,
     CREATED,
