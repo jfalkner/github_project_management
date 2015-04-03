@@ -140,6 +140,7 @@ def weekly(
     body += 'You can find out more about [curation here](https://docs.google.com/a/counsyl.com/document/d/1sv-8omveyk5f5mywlrkmbtcqzitf4xsvok-benidta4/edit?usp=sharing). More information about the weekly, monthly and project management process in [here](https://docs.google.com/a/counsyl.com/document/d/1k2qrqk-hpjkmlh_jzsiyfr7lh6s3qc9ltabtxiuvari/edit?usp=sharing).\n\n'
 
     # First show the executive summary.
+    body += '<a name="summary"></a>\n'
     body += '\n### Executive Summary\n\n'
     executive_summary_comments = []
     if weekly_issue:
@@ -156,6 +157,7 @@ def weekly(
     rows = sorted(rows, key=lambda x: len(x['comments']), reverse=True)
 
     # Show all active GH issues as a list sorted by most comments.
+    body += '<a name="active"></a>\n'
     body += '\n### Active this week\n\n'
     open_issues = [row for row in rows if row['state'] == 'open']
     for issue in open_issues:
@@ -174,6 +176,7 @@ def weekly(
         body += "- No comments in issues labeled 'curation' this week\n"
 
     # Show all closed GH issues as a list sorted by most comments.
+    body += '<a name="closed"></a>\n'
     body += '\n### Closed this week\n\n'
     closed_issues = [row for row in rows if row['state'] != 'open']
     for issue in closed_issues:
@@ -185,6 +188,7 @@ def weekly(
     if not closed_issues:
         body += '- No issues closed this week.\n'
 
+    body += '<a name="milestones"></a>\n'
     body += '\n### Milestones\n'
     body += '\nThese are groups of tickets related to a specific project. misc inactive tickets are binned in the "curation backlog" milestone. this list is intended to help summarize the [full set of tickets open for curation](https://github.counsyl.com/dev/website/labels/curation).\n\n'
     for (title, url), count in Counter(milestones).most_common():
