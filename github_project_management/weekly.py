@@ -18,7 +18,14 @@ def weekly(
     group_name,
     # Defaults: only display the GH issue and format dates in ISO style.
     test=True,
-    date_format=lambda x: x.strftime('%Y-%m-%d')):
+    date_format=lambda x: x.strftime('%Y-%m-%d'),
+    template='template.md'):
+
+    # Make sure that a template can be parsed.
+    body_template = 'No file found for %s' % template
+    if template:
+        with open(template, 'r') as tf:
+            body_template = tf.read()
 
     # Add the weekly label for the Weeklies.
     weekly_labels = labels + ['Weekly']
@@ -132,70 +139,64 @@ def weekly(
     print current_week_title
 
     # Build up the body of the current Weekly GH issue.
-    body = ''
-    body += '@dev/curators @dev/pgms @dev/genomics\n\n'
-
-    body += 'This is the curation weekly github issue. The purpose of it is to summarize needing work and related discussions. github is used because it is the primary tool counsyl engineers use to track work and report progress.\n\n'
-
-    body += 'You can find out more about [curation here](https://docs.google.com/a/counsyl.com/document/d/1sv-8omveyk5f5mywlrkmbtcqzitf4xsvok-benidta4/edit?usp=sharing). More information about the weekly, monthly and project management process in [here](https://docs.google.com/a/counsyl.com/document/d/1k2qrqk-hpjkmlh_jzsiyfr7lh6s3qc9ltabtxiuvari/edit?usp=sharing).\n\n'
-
     # First show the executive summary.
-    body += '<a name="summary"></a>\n'
-    body += '\n### Executive Summary\n\n'
     executive_summary_comments = []
     if weekly_issue:
         for com in weekly_issue.iter_comments():
             if com.body and com.body.startswith('Executive Summary:'):
                 executive_summary_comments.append(com.body[len('Executive Summary:'):])
+    executive_body = ''
     if not executive_summary_comments:
-        body += '- No executive summary comments.\n'
+        executive_body += '- No executive summary comments.\n'
     else:
         for esc in executive_summary_comments:
-            body += '- %s\n' % esc
-
+            executive_body += '- %s\n' % esc
 
     rows = sorted(rows, key=lambda x: len(x['comments']), reverse=True)
 
     # Show all active GH issues as a list sorted by most comments.
-    body += '<a name="active"></a>\n'
-    body += '\n### Active this week\n\n'
+    active_body = ''
     open_issues = [row for row in rows if row['state'] == 'open']
     for issue in open_issues:
         num_comments = len(issue['comments'])
         if num_comments:
-            body += '- %d comment%s: [%s](%s)\n' % (
+            active_body += '- %d comment%s: [%s](%s)\n' % (
                 num_comments,
                 's' if num_comments > 1 else '',
                 issue[GPMC.TITLE],
                 issue[GPMC.URL])
         else:
-            body += '- New issue: [%s](%s)\n' % (
+            active_body += '- New issue: [%s](%s)\n' % (
                 issue[GPMC.TITLE],
                 issue[GPMC.URL])
     if not open_issues:
-        body += "- No comments in issues labeled 'curation' this week\n"
+        active_body += "- No comments in issues labeled 'curation' this week\n"
 
     # Show all closed GH issues as a list sorted by most comments.
-    body += '<a name="closed"></a>\n'
-    body += '\n### Closed this week\n\n'
+    closed_body = ''
     closed_issues = [row for row in rows if row['state'] != 'open']
     for issue in closed_issues:
-        body += '- %d comment%s: [%s](%s)\n' % (
+        closed_body += '- %d comment%s: [%s](%s)\n' % (
             len(issue['comments']),
             's' if len(issue['comments']) > 1 else '',
             issue[GPMC.TITLE],
             issue[GPMC.URL])
     if not closed_issues:
-        body += '- No issues closed this week.\n'
+        closed_body += '- No issues closed this week.\n'
 
-    body += '<a name="milestones"></a>\n'
-    body += '\n### Milestones\n'
-    body += '\nThese are groups of tickets related to a specific project. misc inactive tickets are binned in the "curation backlog" milestone. this list is intended to help summarize the [full set of tickets open for curation](https://github.counsyl.com/dev/website/labels/curation).\n\n'
+    milestone_body = ''
     for (title, url), count in Counter(milestones).most_common():
         if title:
-            body += '- %d open issue%s: [%s](%s)\n' % (count, 's' if count > 1 else '', title, url)
+            milestone_body += '- %d open issue%s: [%s](%s)\n' % (count, 's' if count > 1 else '', title, url)
         else:
-            body += '- %d open issue%s assigned to a milestone\n' % (count, "s aren't" if count > 1 else " isn't")
+            milestone_body += '- %d open issue%s assigned to a milestone\n' % (count, "s aren't" if count > 1 else " isn't")
+
+    body = body_template.format(
+        executive=executive_body,
+        active=active_body,
+        closed=closed_body,
+        milestones=milestone_body)
+
 
     # Always run in test mode by default.
     if test:
