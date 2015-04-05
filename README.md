@@ -5,7 +5,7 @@ If you work with engineering teams that rely on GitHub and you have to help do p
 
 - [Why make this project?](#why-make-this-project)
 - [Installing](#installing)
-- [Example Code](#example-code)
+- Example Code
   - [Weekly GitHub summary](#weekly-summary)
   - [Export the list of open GitHub issues as a spreadsheet](#export-the-list-of-open-github-issues-as-a-spreadsheet)
 
