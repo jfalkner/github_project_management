@@ -4,6 +4,7 @@ Github Project Management
 If you work with engineering teams that rely on GitHub and you have to help do project management, these tools are likely helpful. You'll find here a tool that makes weekly summaries of active GitHub issuese and a way to export the full list of current GitHub projects based on labels.
 
 - [Why make this project?](#why-make-this-project)
+- [Don't you know about XYZ and that it does all this and more?]()
 - [Installing](#installing)
 - Example Code
   - [Weekly GitHub summary](#weekly-github-summary)
@@ -27,6 +28,15 @@ Here are the tools. No need to be a programmer. If you have a GitHub login, you 
 There are many caveats in project management. The intention here is not to claim that this tool is the one end-all, best way to track work. Nor does the spreadsheet export have some sort of objective metric that can magically rank all projects by importance. These tools are mostly intended to let project managers better automate common GitHub issue wrangling tasks and help entice users to more directly use GitHub.
 
 A final note. A downside of recurring meetings is that people will sometimes wait on doing work until the next meeting. There is no need to only run these tools weekly, monthly or whenever respective meetings occur. The author has these tools running on a 15 minute cron task. It is helpful to have this information available all the time so that user needs are exposed as soon as possible for potential ad-hoc prioritization.
+
+
+Don't you know about XYZ and that it does all this and more?
+---
+
+No, I'm not aware of something simpler than this. That is why I wrote it. I've tried many different project management tools, including several that integrate with GitHub. There is no silver bullet. The devs I work with heavily rely on GitHub. The managers and execs rely on Google docs and spreadsheets. It has been benefical to streamline use of GitHub and to entice users to help directly file tickets and participate in discussions. Exporting to spreadsheets bridges the gap to non-devs well. There has been no need to teach everyone how to use a new tool and convince them that it is worthwhile.
+
+Need a new feature or a slight tweak to something? The source-code can be edited as desired and the GitHub API is easy to use. Go for it.
+
 
 Installing
 ---
