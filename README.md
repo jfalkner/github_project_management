@@ -7,7 +7,7 @@ If you work with engineering teams that rely on GitHub and you have to help do p
 - [Installing](#installing)
 - [Example Code](#example-code)
   - [Weekly GitHub summary](#weekly-summary)
-  - [CSV Export of all open issues](#csv-export)
+  - [Export the list of open GitHub issues as a spreadsheet](#export-the-list-of-open-github-issues-as-a-spreadsheet)
 
 This code is maintained by Jayson Falkner (jfalkner@gmail.com). Please file
 ideas for improvements in the [issues section](https://github.com/jfalkner/github_project_management/issues) of this repo.
@@ -45,7 +45,7 @@ pip install uritemplate.py
 ```
 
 
-Weekly Summary
+Weekly GitHub Summary
 ---
 
 The following code will generate a GitHub issue that summarizes activity for the week. It purposely relies on GitHub labels because it is common to have many different teams creating issues in the same repository(ies). It is easy to edit and maintain labels. If you can keep them up to date, then the code below will give a weekly summary.
