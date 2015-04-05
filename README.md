@@ -1,4 +1,4 @@
-Github Project Management
+Github Project Management (:octocat: :snake: :tada:)
 ===
 
 If you work with engineering teams that rely on GitHub and you have to help do project management, these tools are likely helpful. You'll find here a tool that makes weekly summaries of active GitHub issuese and a way to export the full list of current GitHub projects based on labels.
