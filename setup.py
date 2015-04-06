@@ -9,5 +9,5 @@ setup(
     maintainer_email='jfalkner@gmail.com',
     description='Simple project management for engineering teams that rely on GitHub.',
     url='https://github.com/jfalkner/github_project_management',
-    packages=['github_project_management', 'github_project_management.utils'],
+    packages=['github_project_management'],
 )

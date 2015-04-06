@@ -57,7 +57,7 @@ Installing
 Install the code with the following.
 
 ```
-pip install github_project_management
+pip install --upgrade git+https://git@github.com/jfalkner/github_project_management.git@master#egg=github_project_management
 ```
 
 You must also have the [github3.py](https://github3py.readthedocs.org/en/master/index.html) installed.
