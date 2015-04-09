@@ -13,22 +13,19 @@ def weekly(
     gh_user,
     gh_password,
     gh_api_url,
-    repos,
-    labels,
+    configs,
     group_name,
     # Defaults: only display the GH issue and format dates in ISO style.
     test=True,
     date_format=lambda x: x.strftime('%Y-%m-%d'),
-    template='template.md'):
+    template='template.md',
+    weekly_labels=['Weekly']):
 
     # Make sure that a template can be parsed.
     body_template = 'No file found for %s' % template
     if template:
         with open(template, 'r') as tf:
             body_template = tf.read()
-
-    # Add the weekly label for the Weeklies.
-    weekly_labels = labels + ['Weekly']
 
     # Login to the GH enterprise server.
     gh = github3.github.GitHubEnterprise(gh_api_url)
@@ -48,9 +45,31 @@ def weekly(
     milestones = []
 
     rows = []
-    for repo_user, repo_name in repos:
+
+    def get_or_error(name):
+        if name not in config:
+            raise ValueError("Must provide a 'repo_user' in each config. Found %s" % config)
+        return config[name]
+
+
+    for config in configs:
+
+        # Check that the config is valid.
+        repo_user = get_or_error('repo_user')
+        repo_name = get_or_error('repo_name')
+        title = get_or_error('title')
+        labels = config.get('labels', None)
+        desc = config.get('description', None)
+        link = config.get('link', None)
+        # Ensure no extra keys.
+        expected_keys = {'repo_user', 'repo_name', 'labels', 'description', 'link', 'title'}
+        for key in config.iterkeys():
+            if key not in expected_keys:
+                raise ValueError("Unexpected key-value pair (%s, %s). Only valid keys are %s" % (key, config[key], expected_keys))
+
+
         repo = gh.repository(repo_user, repo_name)
-        for issue in repo.iter_issues(state='all', labels=','.join(labels)):
+        for issue in repo.iter_issues(state='all', labels=labels):
             print 'Checking issue:', issue.state, issue.title
 
             # Track all milestones with at least one open ticket.
@@ -68,7 +87,7 @@ def weekly(
                 continue
 
             row = {}
-            row['state'] = issue.state
+            row[GPMC.STATE] = issue.state
             row[GPMC.TITLE] = issue.title
             row[GPMC.ASSIGNEE] = issue.assignee.login if issue.assignee else None
             row[GPMC.CREATED] = issue.created_at
@@ -76,6 +95,9 @@ def weekly(
             row[GPMC.URL] = url
             row[GPMC.MILESTONE] = issue.milestone.title if issue.milestone else None
 
+            row[GPMC.PULL_REQUEST] = True if issue.pull_request else False
+            row[GPMC.LABELS] = issue.labels
+            row[GPMC.GROUPING_LABELS] = labels
 
             # extra info that may not appear in columns.
             row[GPMC.BODY] = issue.body
@@ -85,7 +107,10 @@ def weekly(
             uoi = issue.assignee.login if issue.assignee else 'not assigned'
 
             comments = []
+            total_comments = 0
             for com in issue.iter_comments():
+                total_comments += 1
+
                 # skip comments note in the time range of ineterest.
                 if com.updated_at < current_week_monday:
                     continue
@@ -99,7 +124,9 @@ def weekly(
                         'created': com.created_at,
                         'user': com.user.login,
                     })
-            row['comments'] = comments
+            row[GPMC.COMMENTS] = comments
+            row[GPMC.RECENT_COMMENTS] = len(comments)
+            row[GPMC.TOTAL_COMMENTS] = total_comments
 
             # don't show this issues if there were no comments.
             if len(comments) > 0 or (issue.created_at <= current_week_sunday and issue.created_at >= current_week_monday):
