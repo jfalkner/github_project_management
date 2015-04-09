@@ -1,15 +1,30 @@
-TITLE = 'Title'
-MILESTONE = 'Milestone'
 ASSIGNEE = 'Assignee'
-URL = 'URL'
+CLOSED = 'Closed'
+COMMENTS = 'Comments'
 CREATED = 'Created'
+GROUPING_LABELS = 'Grouping Labels'
+GROUPING_TITLE = 'Grouping Title'
+ISSUE = 'Issue'
+LABELS = 'Labels'
 LATEST_COMMENT = 'Latest Comment'
-VOTES = 'Votes'
+MILESTONE = 'Milestone'
+PULL_REQUEST = 'Pull Request'
+RECENT_COMMENTS = 'Recent Comments'
+REPO_USER = 'Repo User'
+REPO_NAME = 'Repo Name'
+STATE = 'State'
 TEAM_VOTES = 'Team Votes'
+TITLE = 'Title'
+UPDATED = 'Updated'
+URL = 'URL'
+VOTES = 'Votes'
 
 HEADER = [
     TITLE,
     MILESTONE,
+    GROUPING_LABELS,
+    LABELS,
+    PULL_REQUEST,
     ASSIGNEE,
     URL,
     CREATED,
