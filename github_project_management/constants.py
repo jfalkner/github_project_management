@@ -5,13 +5,14 @@ CREATED = 'Created'
 GROUPING_LABELS = 'Grouping Labels'
 GROUPING_TITLE = 'Grouping Title'
 ISSUE = 'Issue'
+ISSUE_NUMBER = 'Number'
 LABELS = 'Labels'
 LATEST_COMMENT = 'Latest Comment'
 MILESTONE = 'Milestone'
 PULL_REQUEST = 'Pull Request'
 RECENT_COMMENTS = 'Recent Comments'
-REPO_USER = 'Repo User'
 REPO_NAME = 'Repo Name'
+REPO_USER = 'Repo User'
 STATE = 'State'
 TEAM_VOTES = 'Team Votes'
 TITLE = 'Title'
@@ -22,12 +23,16 @@ VOTES = 'Votes'
 HEADER = [
     TITLE,
     MILESTONE,
-    GROUPING_LABELS,
+    GROUPING_TITLE,
     LABELS,
     PULL_REQUEST,
     ASSIGNEE,
     URL,
     CREATED,
+    UPDATED,
+    CLOSED,
+    COMMENTS,
+    RECENT_COMMENTS,
     LATEST_COMMENT,
     VOTES,
     TEAM_VOTES,

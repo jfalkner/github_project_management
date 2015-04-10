@@ -60,12 +60,13 @@ def list_issues(
             row[GPMC.UPDATED] = issue.updated_at
             row[GPMC.REPO_USER] = repo_user
             row[GPMC.REPO_NAME] = repo_name
+            row[GPMC.ISSUE_NUMBER] = issue.number
             url = gh_api_url + '/' + repo_user + '/' + repo_name + '/issues/' + str(issue.number)
             row[GPMC.URL] = url
             row[GPMC.MILESTONE] = issue.milestone.title if issue.milestone else None
 
             row[GPMC.PULL_REQUEST] = True if issue.pull_request else False
-            row[GPMC.LABELS] = issue.labels
+            row[GPMC.LABELS] = ','.join([label.name for label in issue.labels])
             row[GPMC.GROUPING_TITLE] = title
             row[GPMC.GROUPING_LABELS] = labels
 
