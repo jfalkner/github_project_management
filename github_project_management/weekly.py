@@ -217,3 +217,81 @@ def weekly(
             assignee=gh_user,
             labels=weekly_labels)
         print 'Updated: %s/%s#%d' % (weekly_repo_user, weekly_repo_name, weekly_issue.number)
+
+
+def main():
+    """Runs the weekly update code
+
+    Optional parameters. Will be prompted for unless set.
+
+      -gh_user = GitHub login name. Can also set as env variable of same name.
+      -gh_pass = GitHub password. Can also set as env variable of same name.
+
+    Required parameters.
+
+      -gh_api = GitHub URL for the enterprise instance being used.
+      -template = Markdown template for the weekly.
+      -config = JSON formatted configuration.
+
+    """
+    import sys
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-gh_user', action="store", dest='gh_user', help='GitHub login name. Can also set as env variable of same name.')
+    parser.add_argument('-gh_pass', action="store", dest='gh_pass', help='GitHub password. Can also set as env variable of same name.')
+    parser.add_argument('-gh_api', action="store", dest='gh_api', help='GitHub URL for the enterprise instance being used.')
+    parser.add_argument('-template', action="store", dest='template', help='Markdown template for the weekly.')
+    parser.add_argument('-config', action="store", dest='config', help='JSON formatted configuration.')
+
+    args = parser.parse_args(sys.argv[1:])
+    print "Running weekly code"
+
+    # Expected arguments.
+    gh_user = None
+    if args.gh_user:
+        gh_user = args.gh_user
+    elif 'gh_user' in sys.env:
+        gh_user = sys.env['gh_user']
+    else:
+        gh_user = raw_input('GitHub login:')
+
+    gh_pass = None
+    if args.gh_pass:
+        gh_pass = args.gh_pass
+    elif 'gh_pass' in sys.env:
+        gh_pass = sys.env['gh_pass']
+    else:
+        gh_pass = getpass('GitHub password:')
+
+    gh_api = args.gh_api
+
+    # Parse all the other config from the JSON. Should have the template in there too.
+    import json
+    config_json = None
+    with open(args.config, 'r') as jf:
+        config_json = json.load(jf)
+
+    weekly_config = config_json['weekly_config']
+    configs = config_json['projects']
+    group_name = config_json['group_name']
+    # Allow overriding of the template. Fall back on assuming it is in the JSON.
+    if args.template:
+        template = args.template
+    else:
+        template = config_json['template']
+    import ipdb; ipdb.set_trace()
+
+    # Run the weekly update.
+    weekly(
+        gh_user,
+        gh_pass,
+        gh_api,
+        weekly_config,
+        configs,
+        group_name,
+        template=template,
+        test=True)
+
+
+if __name__ == "__main__":
+    main()
