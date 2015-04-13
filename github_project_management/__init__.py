@@ -3,6 +3,105 @@ import github3
 from github_project_management import constants as GPMC
 
 
+def milestone_url(gh_api_url, repo_user, repo_name, milestone_title):
+    return gh_api_url + '/' + repo_user + '/' + repo_name + '/milestones/' + str(milestone_title)
+
+
+def list_issues(
+    gh_user,
+    gh_password,
+    gh_api_url,
+    configs,
+    recent_start_date,
+    recent_end_date):
+
+    # Login to the GH enterprise server.
+    gh = github3.github.GitHubEnterprise(gh_api_url)
+    gh.login(gh_user, gh_password)
+
+    def get_or_error(name):
+        if name not in config:
+            raise ValueError("Must provide a 'repo_user' in each config. Found %s" % config)
+        return config[name]
+
+
+    for config in configs:
+
+        # Check that the config is valid.
+        repo_user = get_or_error('repo_user')
+        repo_name = get_or_error('repo_name')
+        title = config.get('title', None)
+        labels = config.get('labels', None)
+        desc = config.get('description', None)
+        link = config.get('link', None)
+        # Ensure no extra keys.
+        expected_keys = {'repo_user', 'repo_name', 'labels', 'description', 'link', 'title'}
+        for key in config.iterkeys():
+            if key not in expected_keys:
+                raise ValueError("Unexpected key-value pair (%s, %s). Only valid keys are %s" % (key, config[key], expected_keys))
+
+
+        repo = gh.repository(repo_user, repo_name)
+        # GitHub caps these at 100. Need to loop to get them all.
+        issues_found = 100
+        last_date = '1900-01-01'
+        while issues_found == 100:
+            issues_found = 0
+            for issue in repo.iter_issues(state='all', labels=labels, sort='updated', direction='asc', since=last_date):
+                last_date = issue.updated_at
+                issues_found += 1
+
+                labels_set = set(labels)
+                issue_labels_set = {label.name for label in issue.labels}
+                if not labels_set.issubset(issue_labels_set):
+                    #print 'Skipping %s labels  %s because subset of %s' % (issue.title, labels_set, issue_labels_set)
+                    continue
+
+                row = {}
+                row[GPMC.ISSUE] = issue
+                row[GPMC.STATE] = issue.state
+                row[GPMC.TITLE] = issue.title
+                row[GPMC.ASSIGNEE] = issue.assignee.login if issue.assignee else None
+                row[GPMC.CREATED] = issue.created_at
+                row[GPMC.CLOSED] = issue.closed_at
+                row[GPMC.UPDATED] = issue.updated_at
+                row[GPMC.REPO_USER] = repo_user
+                row[GPMC.REPO_NAME] = repo_name
+                row[GPMC.ISSUE_NUMBER] = issue.number
+                url = gh_api_url + '/' + repo_user + '/' + repo_name + '/issues/' + str(issue.number)
+                row[GPMC.URL] = url
+                row[GPMC.MILESTONE] = issue.milestone.title if issue.milestone else None
+
+                row[GPMC.PULL_REQUEST] = True if issue.pull_request else False
+                row[GPMC.LABELS] = ','.join([label.name for label in issue.labels])
+                row[GPMC.GROUPING_TITLE] = title.encode('utf-8').strip() if title else title
+                row[GPMC.GROUPING_LABELS] = labels
+
+                # extra info that may not appear in columns.
+                row[GPMC.BODY] = issue.body.encode('utf-8').strip() if issue.body else issue.body
+
+                row[GPMC.COMMENTS] = issue.comments
+
+                comments = []
+                for com in issue.iter_comments():
+                    # skip comments note in the time range of ineterest.
+                    if com.updated_at < recent_start_date:
+                        continue
+                    if com.created_at > recent_end_date:
+                        continue
+
+                    # keeping based on created_at has the downside that updates will mutate the data.
+                    if com.created_at > recent_start_date and com.created_at <= recent_end_date:
+                        comments.append({
+                            'body': com.body,
+                            'created': com.created_at,
+                            'user': com.user.login,
+                        })
+                row[GPMC.RECENT_COMMENTS] = len(comments)
+
+                yield row
+
+
 def list_projects(
     gh_user,
     gh_password,

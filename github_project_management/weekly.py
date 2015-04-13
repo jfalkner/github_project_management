@@ -7,19 +7,21 @@ import pytz
 import github3
 
 from github_project_management import constants as GPMC
+from github_project_management import list_issues
+from github_project_management import milestone_url
 
 
 def weekly(
     gh_user,
     gh_password,
     gh_api_url,
-    repos,
-    labels,
+    weekly_config,
+    configs,
     group_name,
+    template,
     # Defaults: only display the GH issue and format dates in ISO style.
     test=True,
-    date_format=lambda x: x.strftime('%Y-%m-%d'),
-    template='template.md'):
+    date_format=lambda x: x.strftime('%Y-%m-%d')):
 
     # Make sure that a template can be parsed.
     body_template = 'No file found for %s' % template
@@ -27,84 +29,13 @@ def weekly(
         with open(template, 'r') as tf:
             body_template = tf.read()
 
-    # Add the weekly label for the Weeklies.
-    weekly_labels = labels + ['Weekly']
-
-    # Login to the GH enterprise server.
-    gh = github3.github.GitHubEnterprise(gh_api_url)
-    gh.login(gh_user, gh_password)
-
-
     # Track all issues in the timeframe.
     tz = pytz.timezone('US/Pacific')
     today = tz.localize(datetime.today())
     today -= timedelta(seconds=(today.hour * 60 * 60 + today.minute * 60 + today.second), microseconds=today.microsecond)
     current_week_monday = today - timedelta(days=today.weekday())
     current_week_sunday = current_week_monday + timedelta(days=6)
-    last_week_monday = current_week_monday - timedelta(days=7)
-    last_week_sunday = current_week_sunday - timedelta(days=7)
 
-
-    milestones = []
-
-    rows = []
-    for repo_user, repo_name in repos:
-        repo = gh.repository(repo_user, repo_name)
-        for issue in repo.iter_issues(state='all', labels=','.join(labels)):
-            print 'Checking issue:', issue.state, issue.title
-
-            # Track all milestones with at least one open ticket.
-            if issue.state == 'open':
-                if issue.milestone:
-                    milestone_url = gh_api_url + '/' + repo_user + '/' + repo_name + '/milestones/' + str(issue.milestone.title)
-                    milestones.append((issue.milestone.title, milestone_url))
-                else:
-                    milestones.append((None, None))
-
-            # Skip if the create or close date doesn't make sense given the time range.
-            if issue.closed_at and issue.closed_at < current_week_monday:
-                continue
-            if issue.created_at > current_week_sunday:
-                continue
-
-            row = {}
-            row['state'] = issue.state
-            row[GPMC.TITLE] = issue.title
-            row[GPMC.ASSIGNEE] = issue.assignee.login if issue.assignee else None
-            row[GPMC.CREATED] = issue.created_at
-            url = gh_api_url + '/' + repo_user + '/' + repo_name + '/issues/' + str(issue.number)
-            row[GPMC.URL] = url
-            row[GPMC.MILESTONE] = issue.milestone.title if issue.milestone else None
-
-
-            # extra info that may not appear in columns.
-            row[GPMC.BODY] = issue.body
-
-            # iterate through all of the comments.
-            ruoi, roi = issue.repository
-            uoi = issue.assignee.login if issue.assignee else 'not assigned'
-
-            comments = []
-            for com in issue.iter_comments():
-                # skip comments note in the time range of ineterest.
-                if com.updated_at < current_week_monday:
-                    continue
-                if com.created_at > current_week_sunday:
-                    continue
-
-                # keeping based on created_at has the downside that updates will mutate the data.
-                if com.created_at > current_week_monday and com.created_at <= current_week_sunday:
-                    comments.append({
-                        'body': com.body,
-                        'created': com.created_at,
-                        'user': com.user.login,
-                    })
-            row['comments'] = comments
-
-            # don't show this issues if there were no comments.
-            if len(comments) > 0 or (issue.created_at <= current_week_sunday and issue.created_at >= current_week_monday):
-                # display the results.
-                rows.append(row)
 
     # make the weekly title. use it for a unique check.
     def suffix(d):
@@ -119,24 +50,54 @@ def weekly(
                    custom_strftime('%b {s}', start_date),
                    custom_strftime('%b {s}', end_date))
 
-
     current_week_title = make_title(group_name, current_week_monday, current_week_sunday)
-    last_week_title = make_title(group_name, last_week_monday, last_week_sunday)
 
-    # Search for a GH issue that already has this title. If exists, reuse it.
-    print "Searching for this and last week's issues"
-    repo = gh.repository(repo_user, repo_name)
+
+    # Iterate through all the issues that match the configs.
+    milestones = []
+    rows = []
+
+    for row in list_issues(gh_user, gh_password, gh_api_url, configs, current_week_monday, current_week_sunday):
+        issue = row[GPMC.ISSUE]
+
+        # Track all milestones with at least one open ticket.
+        if issue.state == 'open':
+            if issue.milestone:
+                milestones.append((issue.milestone.title,
+                                   milestone_url(gh_api_url, row[GPMC.REPO_USER], row[GPMC.REPO_NAME], issue.milestone.title)))
+            else:
+                milestones.append((None, None))
+
+        # Skip if the create or close date doesn't make sense given the time range.
+        if issue.closed_at and issue.closed_at < current_week_monday:
+            continue
+        if issue.created_at > current_week_sunday:
+            continue
+
+        # Only show issues in the weekly that have had recent comments.
+        if row[GPMC.RECENT_COMMENTS] or issue.created_at > current_week_sunday:
+            rows.append(row)
+
+
+    # Find this week's weekly and also auto-close all old weeklies.
+    weekly_labels = weekly_config['labels']
+    weekly_repo_user = weekly_config['repo_user']
+    weekly_repo_name = weekly_config['repo_name']
     weekly_issue = None
-    last_weekly_issue = None
-    for issue in repo.iter_issues(state='all', labels=','.join(labels)):
+    for row in list_issues(gh_user, gh_password, gh_api_url, [weekly_config], current_week_monday, current_week_sunday):
+        issue = row[GPMC.ISSUE]
+
+        # Track if this week or last week's issue exists.
         if issue.title == current_week_title:
             weekly_issue = issue
-        if issue.title == last_week_title:
-            last_weekly_issue = issue
-    # If weekly issue doesn't exist, make it.
-    print "  Found this week's issue: %s" % (weekly_issue)
-    print "  Found last week's issue: %s" % (last_weekly_issue)
-    print current_week_title
+        else:
+            if not issue.is_closed():
+                if not test:
+                    print 'Closed old weekly: (%s, %s) #%d' % (weekly_repo_user, weekly_repo_name, issue.number)
+                    issue.close()
+                else:
+                    print 'Test mode. Would have closed old weekly: (%s, %s) #%d' % (weekly_repo_user, weekly_repo_name, issue.number)
+
 
     # Build up the body of the current Weekly GH issue.
     # First show the executive summary.
@@ -152,37 +113,65 @@ def weekly(
         for esc in executive_summary_comments:
             executive_body += '- %s\n' % esc
 
-    rows = sorted(rows, key=lambda x: len(x['comments']), reverse=True)
+    rows = sorted(rows, key=lambda x: x[GPMC.RECENT_COMMENTS], reverse=True)
 
-    # Show all active GH issues as a list sorted by most comments.
-    active_body = ''
-    open_issues = [row for row in rows if row['state'] == 'open']
-    for issue in open_issues:
-        num_comments = len(issue['comments'])
-        if num_comments:
-            active_body += '- %d comment%s: [%s](%s)\n' % (
-                num_comments,
-                's' if num_comments > 1 else '',
-                issue[GPMC.TITLE],
-                issue[GPMC.URL])
+
+    # Group all issues by the set of labels.
+    from collections import OrderedDict
+    config_tuples = [
+        (config.get('title', None),
+         (config.get('labels', None),
+          config.get('link', None),
+          config.get('description', None))) for config in configs]
+    title2meta = OrderedDict(config_tuples)
+    title2issues = {}
+    for title in title2meta.iterkeys():
+        title2issues[title] = []
+    for row in rows:
+        title2issues[row[GPMC.GROUPING_TITLE]].append(row)
+
+    projects_body = ''
+    for title, (lables, link, description) in title2meta.iteritems():
+        # Make the per-project header.
+        if not title:
+            title = 'All Issues'
+        if link:
+            projects_body += '\n<hr/>\n#### [%s](%s)\n' % (title, link)
         else:
-            active_body += '- New issue: [%s](%s)\n' % (
-                issue[GPMC.TITLE],
-                issue[GPMC.URL])
-    if not open_issues:
-        active_body += "- No comments in issues labeled 'curation' this week\n"
+            projects_body += '\n<hr/>\n#### %s\n' % title
+        if description:
+            projects_body += '%s\n' % description
 
-    # Show all closed GH issues as a list sorted by most comments.
-    closed_body = ''
-    closed_issues = [row for row in rows if row['state'] != 'open']
-    for issue in closed_issues:
-        closed_body += '- %d comment%s: [%s](%s)\n' % (
-            len(issue['comments']),
-            's' if len(issue['comments']) > 1 else '',
-            issue[GPMC.TITLE],
-            issue[GPMC.URL])
-    if not closed_issues:
-        closed_body += '- No issues closed this week.\n'
+        # Show all active GH issues as a list sorted by most comments.
+        open_issues = [row for row in rows if row[GPMC.STATE] == 'open' and row[GPMC.GROUPING_TITLE] == title]
+        if open_issues:
+            projects_body += '\n##### Active this week\n'
+            for issue in open_issues:
+                num_comments = issue[GPMC.RECENT_COMMENTS]
+                if num_comments:
+                    projects_body += '- %d comment%s: [%s](%s)\n' % (
+                        num_comments,
+                        's' if num_comments > 1 else '',
+                        issue[GPMC.TITLE],
+                        issue[GPMC.URL])
+                else:
+                    projects_body += '- New issue: [%s](%s)\n' % (
+                        issue[GPMC.TITLE],
+                        issue[GPMC.URL])
+
+        # Show all closed GH issues as a list sorted by most comments.
+        closed_issues = [row for row in rows if row[GPMC.STATE] != 'open' and row[GPMC.GROUPING_TITLE] == title]
+        if closed_issues:
+            projects_body += '\n##### Closed this week\n'
+            for issue in closed_issues:
+                projects_body += '- %d comment%s: [%s](%s)\n' % (
+                    issue[GPMC.RECENT_COMMENTS],
+                    's' if issue[GPMC.RECENT_COMMENTS] > 1 else '',
+                    issue[GPMC.TITLE],
+                    issue[GPMC.URL])
+
+        if not open_issues and not closed_issues:
+            projects_body += "- No comment activity this week.\n"
 
     milestone_body = ''
     for (title, url), count in Counter(milestones).most_common():
@@ -193,8 +182,7 @@ def weekly(
 
     body = body_template.format(
         executive=executive_body,
-        active=active_body,
-        closed=closed_body,
+        projects=projects_body,
         milestones=milestone_body)
 
 
@@ -206,7 +194,13 @@ def weekly(
         return
 
 
+
     if not weekly_issue:
+        # Login to the GH enterprise server.
+        gh = github3.github.GitHubEnterprise(gh_api_url)
+        gh.login(gh_user, gh_password)
+        repo = gh.repository(weekly_repo_user, weekly_repo_name)
+
         print 'Making new issue'
         weekly_issue = repo.create_issue(
             current_week_title,
@@ -226,8 +220,83 @@ def weekly(
             body,
             assignee=gh_user,
             labels=weekly_labels)
-        print 'Updated: (%s, %s) #%d' % (gh_user, repo, weekly_issue.number)
-    # Make sure that last week's issue is closed.
-    if last_weekly_issue and not last_weekly_issue.is_closed():
-        last_weekly_issue.close()
-        print 'Closed old weekly: (%s, %s) #%d' % (gh_user, repo, last_weekly_issue.number)
+        print 'Updated: %s/%s#%d' % (weekly_repo_user, weekly_repo_name, weekly_issue.number)
+
+
+def main():
+    """Runs the weekly update code
+
+    Optional parameters. Will be prompted for unless set.
+
+      -gh_user = GitHub login name. Can also set as env variable of same name.
+      -gh_pass = GitHub password. Can also set as env variable of same name.
+      -test = True will display the final markdown. False posts to GitHub and closes old weekly issues.
+
+    Required parameters.
+
+      -gh_api = GitHub URL for the enterprise instance being used.
+      -template = Markdown template for the weekly.
+      -config = JSON formatted configuration.
+
+    """
+    import sys
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-gh_user', action="store", dest='gh_user', help='GitHub login name. Can also set as env variable of same name.')
+    parser.add_argument('-gh_pass', action="store", dest='gh_pass', help='GitHub password. Can also set as env variable of same name.')
+    parser.add_argument('-gh_api', action="store", dest='gh_api', help='GitHub URL for the enterprise instance being used.')
+    parser.add_argument('-template', action="store", dest='template', help='Markdown template for the weekly.')
+    parser.add_argument('-config', action="store", dest='config', help='JSON formatted configuration.')
+    parser.add_argument('--test', dest='test', action='store_true')
+
+    args = parser.parse_args(sys.argv[1:])
+    print "Running weekly code"
+
+    # Expected arguments.
+    gh_user = None
+    if args.gh_user:
+        gh_user = args.gh_user
+    elif 'gh_user' in sys.env:
+        gh_user = sys.env['gh_user']
+    else:
+        gh_user = raw_input('GitHub login:')
+
+    gh_pass = None
+    if args.gh_pass:
+        gh_pass = args.gh_pass
+    elif 'gh_pass' in sys.env:
+        gh_pass = sys.env['gh_pass']
+    else:
+        gh_pass = getpass('GitHub password:')
+
+    gh_api = args.gh_api
+
+    # Parse all the other config from the JSON. Should have the template in there too.
+    import json
+    config_json = None
+    with open(args.config, 'r') as jf:
+        config_json = json.load(jf)
+
+    weekly_config = config_json['weekly_config']
+    configs = config_json['projects']
+    group_name = config_json['group_name']
+    # Allow overriding of the template. Fall back on assuming it is in the JSON.
+    if args.template:
+        template = args.template
+    else:
+        template = config_json['template']
+
+    # Run the weekly update.
+    weekly(
+        gh_user,
+        gh_pass,
+        gh_api,
+        weekly_config,
+        configs,
+        group_name,
+        template=template,
+        test= True if args.test else False)
+
+
+if __name__ == "__main__":
+    main()
