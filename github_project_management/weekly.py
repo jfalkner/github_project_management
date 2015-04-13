@@ -92,9 +92,12 @@ def weekly(
             weekly_issue = issue
         else:
             if not issue.is_closed():
-                import ipdb; ipdb.set_trace()
-                print 'Closed old weekly: (%s, %s) #%d' % (weekly_repo_user, weekly_repo_name, issue.number)
-                issue.close()
+                if not test:
+                    print 'Closed old weekly: (%s, %s) #%d' % (weekly_repo_user, weekly_repo_name, issue.number)
+                    issue.close()
+                else:
+                    print 'Test mode. Would have closed old weekly: (%s, %s) #%d' % (weekly_repo_user, weekly_repo_name, issue.number)
+
 
     # Build up the body of the current Weekly GH issue.
     # First show the executive summary.
@@ -114,12 +117,13 @@ def weekly(
 
 
     # Group all issues by the set of labels.
+    from collections import OrderedDict
     config_tuples = [
         (config.get('title', None),
          (config.get('labels', None),
           config.get('link', None),
           config.get('description', None))) for config in configs]
-    title2meta = dict(config_tuples)
+    title2meta = OrderedDict(config_tuples)
     title2issues = {}
     for title in title2meta.iterkeys():
         title2issues[title] = []
@@ -127,7 +131,7 @@ def weekly(
         title2issues[row[GPMC.GROUPING_TITLE]].append(row)
 
     projects_body = ''
-    for title, (lables, link, description) in config_tuples:
+    for title, (lables, link, description) in title2meta.iteritems():
         # Make the per-project header.
         if not title:
             title = 'All Issues'
@@ -226,6 +230,7 @@ def main():
 
       -gh_user = GitHub login name. Can also set as env variable of same name.
       -gh_pass = GitHub password. Can also set as env variable of same name.
+      -test = True will display the final markdown. False posts to GitHub and closes old weekly issues.
 
     Required parameters.
 
@@ -242,6 +247,7 @@ def main():
     parser.add_argument('-gh_api', action="store", dest='gh_api', help='GitHub URL for the enterprise instance being used.')
     parser.add_argument('-template', action="store", dest='template', help='Markdown template for the weekly.')
     parser.add_argument('-config', action="store", dest='config', help='JSON formatted configuration.')
+    parser.add_argument('--test', dest='test', action='store_true')
 
     args = parser.parse_args(sys.argv[1:])
     print "Running weekly code"
@@ -279,7 +285,6 @@ def main():
         template = args.template
     else:
         template = config_json['template']
-    import ipdb; ipdb.set_trace()
 
     # Run the weekly update.
     weekly(
@@ -290,7 +295,7 @@ def main():
         configs,
         group_name,
         template=template,
-        test=True)
+        test= True if args.test else False)
 
 
 if __name__ == "__main__":

@@ -51,7 +51,12 @@ def export(
         for row in rows:
             key = (row[GPMC.REPO_USER], row[GPMC.REPO_NAME], row[GPMC.ISSUE_NUMBER])
             row[GPMC.GROUPING_TITLE] = ','.join(key2projects[key])
-            writer.writerow([row.get(col, None) for col in HEADER])
+            try:
+                writer.writerow([row.get(col, None) for col in HEADER])
+            except Exception as ex:
+                print row
+                print ex
+
 
 
 
