@@ -181,9 +181,9 @@ def weekly(
             milestone_body += '- %d open issue%s assigned to a milestone\n' % (count, "s aren't" if count > 1 else " isn't")
 
     body = body_template.format(
-        executive=executive_body,
-        projects=projects_body,
-        milestones=milestone_body)
+        executive=executive_body.encode('utf-8').strip(),
+        projects=projects_body.encode('utf-8').strip(),
+        milestones=milestone_body.encode('utf-8').strip())
 
 
     # Always run in test mode by default.
