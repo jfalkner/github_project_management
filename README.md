@@ -73,36 +73,8 @@ The three sections are as follows:
 
 Creating the weekly summary is straight-forward. Use GitHub as normal and maintain a label for the group on all issues. For example, imagine the summary is for a Curation group and the label "curation" is tagged on all issues and PRs. The following Python script will make the weekly issue.
 
-```python
-from github_project_management.weekly import weekly
-from github_project_management.utils import save_as_csv
+```json
 
-# Secret auth info. Not smart to hardcode it here, but can be practical.
-gh_user = 'jayson'
-gh_pass = 'fake_password'
-gh_api = 'https://github.my_company.com'
-
-# What repositories to scan for GH issues.
-repos = [
-    ('dev', 'website')
-]
-
-# Only tickets with these labels will be considered.
-labels = [
-    'curation',
-]
-
-# Arbitrary group name that'll appear in the weekly tickets.
-group_name = 'Curation'
-
-weekly(
-    gh_user,
-    gh_pass,
-    gh_api,
-    repos,
-    labels,
-    group_name,
-    test=False)
 ```
 
 You'll need to also make a template for the issue. This is how you customize the issue's description to include links and relevant information for your group. The template is just a markdown file that you make next to the script. Below is an example.
@@ -119,15 +91,10 @@ You can find out more about [curation here](https://docs.google.com/a/my_company
 
 {executive}
 
-<a name="active"></a>
-### Active this week
+<a name="projects"></a>
+### Projects this week
 
-{active}
-
-<a name="closed"></a>
-### Closed this week
-
-{closed}
+{projects}
 
 <a name="milestones"></a>
 ### Milestones
@@ -140,7 +107,7 @@ These are groups of tickets related to a specific project. misc inactive tickets
 Finally, to run the script and it'll automatically create or update the weekly issue as needed.
 
 ```bash
-python run_weekly.py
+python github_project_management/weekly.py -gh_user fake_user -gh_pass fake_password -gh_api https://github.counsyl.com -template curation_weekly_template.md -config curation_weekly.json
 ```
 
 The above script will also automatically close out last week's issue, if it exists. You don't have to do any extra GitHub ticket wrangling outside of maintaining labels and ensuring that issues exist for all needed work, assuming you run this scripy at least weekly (much more often is recommended).
