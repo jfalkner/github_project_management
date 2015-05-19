@@ -81,8 +81,7 @@ def weekly(
 
     # Find this week's weekly and also auto-close all old weeklies.
     weekly_labels = weekly_config['labels']
-    weekly_repo_user = weekly_config['repo_user']
-    weekly_repo_name = weekly_config['repo_name']
+    weekly_repo_user, weekly_repo_name = weekly_config['repositories'][0].split('/')
     weekly_issue = None
     for row in list_issues(gh_user, gh_password, gh_api_url, [weekly_config], current_week_monday, current_week_sunday):
         issue = row[GPMC.ISSUE]
