@@ -158,63 +158,17 @@ The above script will also automatically close out last week's issue, if it exis
 Export the list of open GitHub issues as a spreadsheet
 ---
 
-Here is a full example.
+Another helpful tool for wrangling GitHub issues is a denormalized export of all the issues. A spreadsheet. This is typically used with Google spreadsheets in a monthly ticket review and cleanup meeting. Wrangling GitHub tickets (any ticketing system, really) isn't fun. A collaborative spreadsheet can speed up the process substantially.
 
->WIP: Need to improve.
+The exact same [demo configuration](demo/example_config.json) above is used here. The export command is as follows.
 
->- Show making up some GH issues in this repo
->- Show setting the config and the full script
->- Show the output CSV
-
-For example, try running the code below.
-
-```python
-from github_project_management import list_projects
-from github_project_management.utils import save_as_csv
-
-# Basic GH auth info.
-gh_user = 'jfalkner'
-gh_pass = 'fake_password'
-gh_api = 'https://github.fake_company.com'
-
-# Repositories to scan for issues.
-repos = [
-    ('jfalkner', 'github_project_management')
-]
-
-# Labels to use. Issues without one of these labels will be ignored.
-labels = ['curation']
-
-# Users that are able to vote.
-users = [
-    'jfalkner',
-    'mona',
-    'mleggett',
-]
-
-# Team leads that can cast votes for the team.
-team_leads = [
-    'jfalkner',
-]
-
-save_as_csv(
-    list_projects(
-        gh_user,
-        gh_pass,
-        gh_api,
-        repos,
-        labels,
-        users,
-        team_leads),
-    'projects.csv')
+```bash
+# Use "https://api.github.com" if using GitHub.com. Use your enterprise GH URL if a private instance. e.g. "https://github.mycompany.com"
+python -m github_project_management.export -gh_user fake_user -gh_pass fake_password -gh_api https://api.github.com -config demo/example_config.json
 ```
 
-It'll export a spreadsheet similar to the following.
+The output is a [`projects.csv` file](demo/projects.csv) that contains one row per GitHub issue. Convenient columns for sorting, filtering, and linking to the issue.
 
-![Example Spreadsheet](images/example_spreadsheet.png)
+![Example Spreadsheet](demo/example_spreadsheet.png)
 
-Notice that the spreadsheet isn't just titles and links. It also tallies up
-votes from users and team leads. This allows you to engage user groups to use 
-GitHub, clarify what is needed, then bring that to a reoccuring project
-planning need with engineering resources. For example, this is currently used
-as the basis of a monthly refresh and refocus on needed work.
+Notice that the spreadsheet isn't just titles and links. It also tallies up votes from users and team leads. This allows you to engage user groups to use GitHub, clarify what is needed, then bring that to a reoccuring project planning need with engineering resources. For example, this is currently used as the basis of a monthly refresh and refocus on needed work.
