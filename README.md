@@ -63,7 +63,7 @@ The following code will generate a GitHub issue that summarizes activity for the
 
 Here is an example of the summary.
 
-![Weekly Summary]()
+![Example Weekly Summary](demo/example_weekly.png)
 
 The three sections are as follows:
 
@@ -72,56 +72,63 @@ The three sections are as follows:
 - Closed. All issues and PRs that were closed this week. Sorted by the number of comments for the week.
 - Milestones. All open milestones for issues included in the weekly summary. A way to see higher-level grouping of issues.
 
-Creating the weekly summary is straight-forward. Use GitHub as normal and maintain a label for the group on all issues. For example, imagine the summary is for a Curation group and the label "curation" is tagged on all issues and PRs. The following Python script will make the weekly issue.
+Creating the weekly summary is straight-forward. Use GitHub as normal and maintain a label for the group on all issues. An [example configuration](demo/example_config.json) is shown below. The example aggregates issues labeled "demo" from this repository and some other related repositories.
 
 ```json
 {
-  "group_name": "Curation",
+  "group_name": "Demo   ",
 
   "weekly_config": {
-    "labels": ["curation", "Weekly"],
-    "repositories": ["dev/website"]
+    "labels": ["demo", "Weekly"],
+    "repositories": ["jfalkner/github_project_management"]
   },
 
   "projects": [
     {
-      "title": "Project A",
-      "description": "Making a foo and a bar. Complete specification is [here](https://github.mycompany.com/dev/website/issues?milestone=123&q=is%3Aopen).",
-      "labels": ["project-a"],
-      "link": "https://github.mycompany.com/dev/website/issues/1234",
-      "repositories": ["dev/website"]
+      "title": "GitHub Project Managment",
+      "description": "Example issues all from the same repository that contains the main codebase. Rarely does everything end up in one repo. Further documentation for how this demo weekly issue was made is  [here](https://github.com/jfalkner/github_project_management).",
+      "labels": ["demo"],
+      "link": "https://github.com/jfalkner/github_project_management",
+      "repositories": [
+        "jfalkner/github_project_management"
+      ]
     },
 
     {
-      "title": "Project B",
-      "description": "Web API for XYZ.",
-      "labels": ["project-b"],
-      "link": "https://github.mycompany.com/dev/website/labels/project-b",
-      "repositories": ["dev/website"]
+      "title": "Acumen",
+      "description": "Example of a [larger project](https://github.com/jfalkner/acumen) that uses code from several repositories. Each repo represents a package that is usable independently. Splitting up the code enforces some simplicty, strong interfaces, and makes maintenance of the individual components easier.",
+      "labels": ["demo"],
+      "link": "https://github.com/jfalkner/acumen",
+      "repositories": [
+        "jfalkner/acumen",
+        "jfalkner/report_data",
+        "jfalkner/report_metrics"
+      ]
     },
 
     {
       "title": "All Issues",
-      "description": "All Curation related issues.",
-      "labels": ["curation"],
+      "description": "All issues. Sometimes stuff doesn't group nicely in to labeled projects and milestones.",
+      "labels": ["demo"],
       "repositories": [
-        "dev/website",
-        "dev/blockers",
-        "foo/bar",
+        "jfalkner/github_project_management",
+        "jfalkner/acumen",
+        "jfalkner/report_data",
+        "jfalkner/report_metrics"
       ]
     }
   ]
 }
 ```
 
-You'll need to also make a template for the issue. This is how you customize the issue's description to include links and relevant information for your group. The template is just a markdown file that you make next to the script. Below is an example.
+You'll need to also make a template for the what will become the weekly summary that gets posted in GitHub. This is how you customize the issue's description to include links and relevant information. The template is just a markdown file that you make next to the script. Below is an [example](demo/example_template.md).
 
 ```md
-@dev/curators @dev/pgms @dev/genomics
+@jfalkner CC @jfalkner/demo
 
-This is the curation weekly GitHub issue. The purpose of it is to summarize needing work and related discussions. GitHub is used because it is the primary tool Counsyl engineers use to track work and report progress.
+This is the demo weekly GitHub issue. The purpose of it is to summarize need work and related discussions. GitHub is used because it is the primary tool MyFakeCompany engineers use to track work and report progress.
 
-You can find out more about [curation here](https://docs.google.com/a/my_company/document/d/.../edit?usp=sharing). More information about the weekly, monthly and project management process in [here](https://docs.google.com/a/my_company/document/d/.../edit?usp=sharing).
+You can find out more about [this demo here](https\://github.com/jfalkner/github_project_management).
 
 <a name="summary"></a>
 ### Executive Summary
@@ -133,7 +140,7 @@ You can find out more about [curation here](https://docs.google.com/a/my_company
 <a name="milestones"></a>
 ### Milestones
 
-These are groups of tickets related to a specific project. misc inactive tickets are binned in the "Curation Backlog" milestone. this list is intended to help summarize the [full set of tickets open for curation](https://github.counsyl.com/dev/website/labels/curation). 
+These are groups of tickets related to a specific project. misc inactive tickets are binned in the "Backlog" milestone.
 
 {milestones}
 ```
@@ -141,7 +148,8 @@ These are groups of tickets related to a specific project. misc inactive tickets
 Finally, to run the script and it'll automatically create or update the weekly issue as needed.
 
 ```bash
-python -m github_project_management.weekly -gh_user fake_user -gh_pass fake_password -gh_api https://github.counsyl.com -template curation_weekly_template.md -config curation_weekly.json
+# Use "https://api.github.com" if using GitHub.com. Use your enterprise GH URL if a private instance. e.g. "https://github.mycompany.com"
+python -m github_project_management.weekly -gh_user fake_user -gh_pass fake_password -gh_api https://api.github.com -template demo/example_template.md -config demo/example_config.json
 ```
 
 The above script will also automatically close out last week's issue, if it exists. You don't have to do any extra GitHub ticket wrangling outside of maintaining labels and ensuring that issues exist for all needed work, assuming you run this scripy at least weekly (much more often is recommended).
