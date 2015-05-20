@@ -1,0 +1,44 @@
+{
+  "group_name": "Demo   ",
+
+  "weekly_config": {
+    "labels": ["demo", "Weekly"],
+    "repositories": ["jfalkner/github_project_management"]
+  },
+
+  "projects": [
+    {
+      "title": "GitHub Project Managment",
+      "description": "Example issues all from the same repository that contains the main codebase. Rarely does everything end up in one repo. Further documentation for how this demo weekly issue was made is  [here](https://github.com/jfalkner/github_project_management).",
+      "labels": ["demo"],
+      "link": "https://github.com/jfalkner/github_project_management",
+      "repositories": [
+        "jfalkner/github_project_management"
+      ]
+    },
+
+    {
+      "title": "Acumen",
+      "description": "Example of a [larger project](https://github.com/jfalkner/acumen) that uses code from several repositories. Each repo represents a package that is usable independently. Splitting up the code enforces some simplicty, strong interfaces, and makes maintenance of the individual components easier.",
+      "labels": ["demo"],
+      "link": "https://github.com/jfalkner/acumen",
+      "repositories": [
+        "jfalkner/acumen",
+        "jfalkner/report_data",
+        "jfalkner/report_metrics"
+      ]
+    },
+
+    {
+      "title": "All Issues",
+      "description": "All issues. Sometimes stuff doesn't group nicely in to labeled projects and milestones.",
+      "labels": ["demo"],
+      "repositories": [
+        "jfalkner/github_project_management",
+        "jfalkner/acumen",
+        "jfalkner/report_data",
+        "jfalkner/report_metrics"
+      ]
+    }
+  ]
+}
