@@ -121,7 +121,7 @@ Creating the weekly summary is straight-forward. Use GitHub as normal and mainta
 }
 ```
 
-You'll need to also make a template for the what will become the weekly summary that gets posted in GitHub. This is how you customize the issue's description to include links and relevant information. The template is just a markdown file that you make next to the script. Below is an [example](demo/example_template.md).
+You'll need to also make a template for the what will become the weekly summary that gets posted in GitHub. This is how you customize the issue's description to include links and relevant information. The template is a markdown file that you make next to the script. Below is an [example](demo/example_template.md).
 
 ```md
 @jfalkner CC @jfalkner/demo
