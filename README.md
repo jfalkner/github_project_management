@@ -76,7 +76,7 @@ Creating the weekly summary is straight-forward. Use GitHub as normal and mainta
 
 ```json
 {
-  "group_name": "Demo   ",
+  "group_name": "Demo",
 
   "weekly_config": {
     "labels": ["demo", "Weekly"],
