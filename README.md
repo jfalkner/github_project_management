@@ -1,7 +1,7 @@
 Github Project Management (:octocat: :snake: :tada:)
 ===
 
-If you work with engineering teams that rely on GitHub and you have to help do project management, these tools are likely helpful. You'll find here a tool that makes weekly summaries of active GitHub issuese and a way to export the full list of current GitHub projects based on labels.
+If you work with engineering teams that rely on GitHub and you have to help do project management, these tools are likely helpful. You'll find here a tool that makes weekly summaries of active GitHub issues and a way to export the full list of current GitHub projects based on labels.
 
 - [Why make this project?](#why-make-this-project)
 - [Don't you know about XYZ and that it does all this and more?](#dont-you-know-about-xyz-and-that-it-does-all-this-and-more)
@@ -16,7 +16,7 @@ ideas for improvements in the [issues section](https://github.com/jfalkner/githu
 Why make this project?
 ---
 
-This code came from a need to help better communicate between user groups, engineering resources, management and execs. GitHub is great for tracking source-code changes and the work queue of related engineering tasks. It also allows for direct user participation in discussions. A challenge is that not everyone has the time or interest to follow all GitHub chatter. It is also challenging to know what a team is actively working. Fortunatley, GitHub has a great API that you can use to interact with the it and export any desired inforimation. The goal of this work is to provide a few easy to use tools that enable a project manager to wrangle GitHub issues and focus on related communication with users, devs, and execs.
+This code came from a need to help better communicate between user groups, engineering resources, management and execs. GitHub is great for tracking source-code changes and the work queue of related engineering tasks. It also allows for direct user participation in discussions. A challenge is that not everyone has the time or interest to follow all GitHub chatter. Fortunately, GitHub has a great API that you can use to interact with the it and export any desired inforimation. The goal of this work is to provide a few easy to use tools that enable a project manager to wrangle GitHub issues and focus on related communication with users, devs, and execs.
 
 Here are the tools. No need to be a programmer. If you have a GitHub login, you should be set.
 
@@ -47,11 +47,12 @@ Install the code with the following.
 pip install --upgrade git+https://git@github.com/jfalkner/github_project_management.git@master#egg=github_project_management
 ```
 
-You must also have the [github3.py](https://github3py.readthedocs.org/en/master/index.html) installed.
+You must also have the [github3.py](https://github3py.readthedocs.org/en/master/index.html), [uritemplate](https://github.com/sigmavirus24/uritemplate) and [pytz](http://pytz.sourceforge.net) dependencies installed.
 
 ```
 pip install github3.py
 pip install uritemplate.py
+pip install pytz
 ```
 
 
@@ -74,7 +75,43 @@ The three sections are as follows:
 Creating the weekly summary is straight-forward. Use GitHub as normal and maintain a label for the group on all issues. For example, imagine the summary is for a Curation group and the label "curation" is tagged on all issues and PRs. The following Python script will make the weekly issue.
 
 ```json
+{
+  "group_name": "Curation",
 
+  "weekly_config": {
+    "labels": ["curation", "Weekly"],
+    "repositories": ["dev/website"]
+  },
+
+  "projects": [
+    {
+      "title": "Project A",
+      "description": "Making a foo and a bar. Complete specification is [here](https://github.mycompany.com/dev/website/issues?milestone=123&q=is%3Aopen).",
+      "labels": ["project-a"],
+      "link": "https://github.mycompany.com/dev/website/issues/1234",
+      "repositories": ["dev/website"]
+    },
+
+    {
+      "title": "Project B",
+      "description": "Web API for XYZ.",
+      "labels": ["project-b"],
+      "link": "https://github.mycompany.com/dev/website/labels/project-b",
+      "repositories": ["dev/website"]
+    },
+
+    {
+      "title": "All Issues",
+      "description": "All Curation related issues.",
+      "labels": ["curation"],
+      "repositories": [
+        "dev/website",
+        "dev/blockers",
+        "foo/bar",
+      ]
+    }
+  ]
+}
 ```
 
 You'll need to also make a template for the issue. This is how you customize the issue's description to include links and relevant information for your group. The template is just a markdown file that you make next to the script. Below is an example.
@@ -91,9 +128,6 @@ You can find out more about [curation here](https://docs.google.com/a/my_company
 
 {executive}
 
-<a name="projects"></a>
-### Projects this week
-
 {projects}
 
 <a name="milestones"></a>
@@ -107,7 +141,7 @@ These are groups of tickets related to a specific project. misc inactive tickets
 Finally, to run the script and it'll automatically create or update the weekly issue as needed.
 
 ```bash
-python github_project_management/weekly.py -gh_user fake_user -gh_pass fake_password -gh_api https://github.counsyl.com -template curation_weekly_template.md -config curation_weekly.json
+python -m github_project_management.weekly -gh_user fake_user -gh_pass fake_password -gh_api https://github.counsyl.com -template curation_weekly_template.md -config curation_weekly.json
 ```
 
 The above script will also automatically close out last week's issue, if it exists. You don't have to do any extra GitHub ticket wrangling outside of maintaining labels and ensuring that issues exist for all needed work, assuming you run this scripy at least weekly (much more often is recommended).
