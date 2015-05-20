@@ -3,6 +3,13 @@ import github3
 from github_project_management import constants as GPMC
 
 
+def get_server(gh_api_url):
+    if gh_api_url == 'https://api.github.com':
+        return github3.github.GitHub()
+    else:
+        return github3.github.GitHubEnterprise(gh_api_url)
+
+
 def milestone_url(gh_api_url, repo_user, repo_name, milestone_title):
     return gh_api_url + '/' + repo_user + '/' + repo_name + '/milestones/' + str(milestone_title)
 
@@ -16,7 +23,7 @@ def list_issues(
     recent_end_date):
 
     # Login to the GH enterprise server.
-    gh = github3.github.GitHubEnterprise(gh_api_url)
+    gh = get_server(gh_api_url)
     gh.login(gh_user, gh_password)
 
     def get_or_error(name):

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='github_project_management',
-    version='0.0.7',
+    version='1.0.0',
     author='Jayson Falkner',
     author_email='jfalkner@gmail.com',
     maintainer='Jayson Falkner',

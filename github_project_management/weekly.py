@@ -7,6 +7,7 @@ import pytz
 import github3
 
 from github_project_management import constants as GPMC
+from github_project_management import get_server
 from github_project_management import list_issues
 from github_project_management import milestone_url
 
@@ -75,7 +76,7 @@ def weekly(
             continue
 
         # Only show issues in the weekly that have had recent comments.
-        if row[GPMC.RECENT_COMMENTS] or issue.created_at > current_week_sunday:
+        if row[GPMC.RECENT_COMMENTS] or issue.created_at >= current_week_monday:
             rows.append(row)
 
 
@@ -196,7 +197,7 @@ def weekly(
 
     if not weekly_issue:
         # Login to the GH enterprise server.
-        gh = github3.github.GitHubEnterprise(gh_api_url)
+        gh = get_server(gh_api_url)
         gh.login(gh_user, gh_password)
         repo = gh.repository(weekly_repo_user, weekly_repo_name)
 
