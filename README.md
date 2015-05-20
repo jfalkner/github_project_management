@@ -1,7 +1,7 @@
 Github Project Management (:octocat: :snake: :tada:)
 ===
 
-If you work with engineering teams that rely on GitHub and you have to help do project management, these tools are likely helpful. You'll find here a tool that makes weekly summaries of active GitHub issuese and a way to export the full list of current GitHub projects based on labels.
+If you work with engineering teams that rely on GitHub and you have to help do project management, these tools are likely helpful. You'll find here a tool that makes weekly summaries of active GitHub issues and a way to export the full list of current GitHub projects based on labels.
 
 - [Why make this project?](#why-make-this-project)
 - [Don't you know about XYZ and that it does all this and more?](#dont-you-know-about-xyz-and-that-it-does-all-this-and-more)
@@ -47,11 +47,12 @@ Install the code with the following.
 pip install --upgrade git+https://git@github.com/jfalkner/github_project_management.git@master#egg=github_project_management
 ```
 
-You must also have the [github3.py](https://github3py.readthedocs.org/en/master/index.html) installed.
+You must also have the [github3.py](https://github3py.readthedocs.org/en/master/index.html), [uritemplate](https://github.com/sigmavirus24/uritemplate) and [pytz](http://pytz.sourceforge.net) dependencies installed.
 
 ```
 pip install github3.py
 pip install uritemplate.py
+pip install pytz
 ```
 
 
