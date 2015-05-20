@@ -25,7 +25,7 @@ Here are the tools. No need to be a programmer. If you have a GitHub login, you 
 2. [Export the list of open GitHub issues as a spreadsheet](#export-the-list-of-open-github-issues-as-a-spreadsheet). This includes key information that makes it easier to see milestone groupings, find stale tickets, and also see what issues that users and team leads have voted most imported. This is useful all the time, and particulary monthly planning and prioritization reviews. 
 
 
-There are many caveats in project management. The intention here is not to claim that this tool is the one end-all, best way to track work. Nor does the spreadsheet export have some sort of objective metric that can magically rank all projects by importance. These tools are mostly intended to let project managers better automate common GitHub issue wrangling tasks and help entice users to more directly use GitHub.
+There are many tasks related project management. The intention here is not to claim that this tool is the one end-all, best way to track work. Nor does the spreadsheet export have some sort of objective metric that can magically rank all projects by importance. These tools are mostly intended to let project managers better automate common GitHub issue wrangling tasks and help entice users to more directly use GitHub.
 
 A final note. A downside of recurring meetings is that people will sometimes wait on doing work until the next meeting. There is no need to only run these tools weekly, monthly or whenever respective meetings occur. The author has these tools running on a 15 minute cron task. It is helpful to have this information available all the time so that user needs are exposed as soon as possible for potential ad-hoc prioritization.
 
