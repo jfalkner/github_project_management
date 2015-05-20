@@ -128,9 +128,6 @@ You can find out more about [curation here](https://docs.google.com/a/my_company
 
 {executive}
 
-<a name="projects"></a>
-### Projects this week
-
 {projects}
 
 <a name="milestones"></a>
