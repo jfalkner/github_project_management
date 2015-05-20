@@ -16,7 +16,7 @@ ideas for improvements in the [issues section](https://github.com/jfalkner/githu
 Why make this project?
 ---
 
-This code came from a need to help better communicate between user groups, engineering resources, management and execs. GitHub is great for tracking source-code changes and the work queue of related engineering tasks. It also allows for direct user participation in discussions. A challenge is that not everyone has the time or interest to follow all GitHub chatter. It is also challenging to know what a team is actively working. Fortunatley, GitHub has a great API that you can use to interact with the it and export any desired inforimation. The goal of this work is to provide a few easy to use tools that enable a project manager to wrangle GitHub issues and focus on related communication with users, devs, and execs.
+This code came from a need to help better communicate between user groups, engineering resources, management and execs. GitHub is great for tracking source-code changes and the work queue of related engineering tasks. It also allows for direct user participation in discussions. A challenge is that not everyone has the time or interest to follow all GitHub chatter. Fortunately, GitHub has a great API that you can use to interact with the it and export any desired inforimation. The goal of this work is to provide a few easy to use tools that enable a project manager to wrangle GitHub issues and focus on related communication with users, devs, and execs.
 
 Here are the tools. No need to be a programmer. If you have a GitHub login, you should be set.
 
