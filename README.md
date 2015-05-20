@@ -75,7 +75,43 @@ The three sections are as follows:
 Creating the weekly summary is straight-forward. Use GitHub as normal and maintain a label for the group on all issues. For example, imagine the summary is for a Curation group and the label "curation" is tagged on all issues and PRs. The following Python script will make the weekly issue.
 
 ```json
+{
+  "group_name": "Curation",
 
+  "weekly_config": {
+    "labels": ["curation", "Weekly"],
+    "repositories": ["dev/website"]
+  },
+
+  "projects": [
+    {
+      "title": "Project A",
+      "description": "Making a foo and a bar. Complete specification is [here](https://github.mycompany.com/dev/website/issues?milestone=123&q=is%3Aopen).",
+      "labels": ["project-a"],
+      "link": "https://github.mycompany.com/dev/website/issues/1234",
+      "repositories": ["dev/website"]
+    },
+
+    {
+      "title": "Project B",
+      "description": "Web API for XYZ.",
+      "labels": ["project-b"],
+      "link": "https://github.mycompany.com/dev/website/labels/project-b",
+      "repositories": ["dev/website"]
+    },
+
+    {
+      "title": "All Issues",
+      "description": "All Curation related issues.",
+      "labels": ["curation"],
+      "repositories": [
+        "dev/website",
+        "dev/blockers",
+        "foo/bar",
+      ]
+    }
+  ]
+}
 ```
 
 You'll need to also make a template for the issue. This is how you customize the issue's description to include links and relevant information for your group. The template is just a markdown file that you make next to the script. Below is an example.
@@ -108,7 +144,7 @@ These are groups of tickets related to a specific project. misc inactive tickets
 Finally, to run the script and it'll automatically create or update the weekly issue as needed.
 
 ```bash
-python github_project_management/weekly.py -gh_user fake_user -gh_pass fake_password -gh_api https://github.counsyl.com -template curation_weekly_template.md -config curation_weekly.json
+python -m github_project_management.weekly -gh_user fake_user -gh_pass fake_password -gh_api https://github.counsyl.com -template curation_weekly_template.md -config curation_weekly.json
 ```
 
 The above script will also automatically close out last week's issue, if it exists. You don't have to do any extra GitHub ticket wrangling outside of maintaining labels and ensuring that issues exist for all needed work, assuming you run this scripy at least weekly (much more often is recommended).
